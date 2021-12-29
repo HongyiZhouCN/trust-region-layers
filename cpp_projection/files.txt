@@ -1,0 +1,8 @@
+/home/i53/student/hongyi_zhou/miniconda3/envs/pingpong/lib/python3.6/site-packages/CppProjection-1.0.0-py3.6-linux-x86_64.egg/cpp_projection.cpython-36m-x86_64-linux-gnu.so
+/home/i53/student/hongyi_zhou/miniconda3/envs/pingpong/lib/python3.6/site-packages/CppProjection-1.0.0-py3.6-linux-x86_64.egg/libprojectionlib.so
+/home/i53/student/hongyi_zhou/miniconda3/envs/pingpong/lib/python3.6/site-packages/CppProjection-1.0.0-py3.6-linux-x86_64.egg/EGG-INFO/PKG-INFO
+/home/i53/student/hongyi_zhou/miniconda3/envs/pingpong/lib/python3.6/site-packages/CppProjection-1.0.0-py3.6-linux-x86_64.egg/EGG-INFO/SOURCES.txt
+/home/i53/student/hongyi_zhou/miniconda3/envs/pingpong/lib/python3.6/site-packages/CppProjection-1.0.0-py3.6-linux-x86_64.egg/EGG-INFO/dependency_links.txt
+/home/i53/student/hongyi_zhou/miniconda3/envs/pingpong/lib/python3.6/site-packages/CppProjection-1.0.0-py3.6-linux-x86_64.egg/EGG-INFO/native_libs.txt
+/home/i53/student/hongyi_zhou/miniconda3/envs/pingpong/lib/python3.6/site-packages/CppProjection-1.0.0-py3.6-linux-x86_64.egg/EGG-INFO/not-zip-safe
+/home/i53/student/hongyi_zhou/miniconda3/envs/pingpong/lib/python3.6/site-packages/CppProjection-1.0.0-py3.6-linux-x86_64.egg/EGG-INFO/top_level.txt

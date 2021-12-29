@@ -7,14 +7,19 @@ find_package(OpenMP REQUIRED)
 find_library(gfortran REQUIRED)
 find_library(openblas REQUIRED)
 find_library(lapack REQUIRED)
+MESSAGE(STATUS "all pkgs find!")
+MESSAGE(STATUS "gfortran dir: ${GFORTRAN_LIBRARIES}")
+MESSAGE(STATUS "openblas dir: ${OPENBLAS_LIBRARIES}")
+MESSAGE(STATUS "lapack dir: ${LAPACK_LIBRARIES}")
+
 ### FOR INSTALLATION CHANGE STUFF HERE! ###################################
 
 #Add pybind11 subfolder (under cpp) or change command if pybind11 installed on system
 add_subdirectory(pybind11)
 
 #Adapt these so that armadillo and nlopt are found
-include_directories(<path_to_armadillo>/include <path_to_nlopt>/include)
-link_directories(<path_to_nlopt>/lib)
+include_directories(/home/i53/student/hongyi_zhou/py_ws/armadillo-10.7.1/include /home/i53/student/hongyi_zhou/install/include /home/i53/student/hongyi_zhou/OpenBLAS_install/include /home/i53/student/hongyi_zhou/miniconda3/envs/pingpong/include)
+link_directories(/home/i53/student/hongyi_zhou/install/lib /home/i53/student/hongyi_zhou/OpenBLAS_install/lib /home/i53/student/hongyi_zhou/miniconda3/envs/pingpong/lib)
 ### END OF STUFF THE NEEDS TO BE CHANGED ##################################
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
@@ -30,7 +35,9 @@ add_library(projectionlib SHARED
         src/projection/DiagCovOnlyKLProjection.cpp
         src/projection/BatchedDiagCovOnlyProjection.cpp
         )
+#target_link_libraries(projectionlib ${LAPACK_LIBRARIES} ${GFORTRAN_LIBRARIES} nlopt)
 target_link_libraries(projectionlib lapack gfortran nlopt)
 
 pybind11_add_module(cpp_projection src/projection/PyProjection.cpp)
+#target_link_libraries(cpp_projection PUBLIC ${LAPACK_LIBRARIES} projectionlib)
 target_link_libraries(cpp_projection PUBLIC lapack projectionlib)

@@ -404,7 +404,7 @@ class PolicyGradient(AbstractAlgorithm):
             for indices in splits:
                 batch = select_batch(indices, returns, old_values, obs)
 
-                sel_returns, sel_old_values, sel_obs = batch
+                sel_returns, sel_old_values, sel_obs = batch  # sel for selected
                 vs = self.vf_model(sel_obs)
 
                 vf_loss = self.value_loss(vs, sel_returns, sel_old_values)

@@ -20,6 +20,8 @@ import numpy as np
 import torch as ch
 from typing import Union
 
+import matplotlib.pyplot as plt
+
 from trust_region_projections.models.policy.abstract_gaussian_policy import AbstractGaussianPolicy
 from trust_region_projections.models.value.vf_net import VFNet
 from trust_region_projections.trajectories.dataclass import TrajectoryOnPolicyRaw
@@ -166,7 +168,16 @@ class TrajectorySampler(object):
         ep_rewards = np.zeros((n_runs, self.n_test_envs,))
         ep_lengths = np.zeros((n_runs, self.n_test_envs,))
 
+        # for debug use, generate different color for segments
+        def uniqueish_color():
+            """There're better ways to generate unique colors, but this isn't awful."""
+            return plt.cm.gist_ncar(np.random.random())
+
+        # for debug use, plot the whole trajectory
+
         for i in range(n_runs):
+            # for debug use
+            seg_num = 0
             not_dones = np.ones((self.n_test_envs,), np.bool)
             obs = self.envs.reset_test()
             while np.any(not_dones):
@@ -178,11 +189,14 @@ class TrajectorySampler(object):
                     actions = p[0] if deterministic else policy.sample(p)
                     actions = policy.squash(actions)
                 obs, rews, dones, infos = self.envs.step_test(get_numpy(actions))
+                seg_len = 250
+                # plt.plot(np.arange(seg_num * seg_len, (seg_num+1)*seg_len), infos['info'][0]['step_observations'][:seg_len, 0], color=uniqueish_color())
+                seg_num += 1
                 ep_rewards[i, not_dones] += rews[not_dones]
 
                 # only set to False when env has never terminated before, otherwise we favor earlier terminating envs.
                 not_dones = np.logical_and(~dones, not_dones)
-
+        # plt.show()
         return self.get_reward_dict(ep_rewards, ep_lengths)
 
     def get_exploration_performance(self):

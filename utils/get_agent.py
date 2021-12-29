@@ -16,6 +16,7 @@
 
 import git
 import os
+import shutil
 from cox.store import schema_from_dict
 
 from trust_region_projections.algorithms.pg.pg import PolicyGradient
@@ -45,6 +46,10 @@ def setup_general_agent(params: dict, save_git: bool = True):
         metadata_schema = schema_from_dict(params)
         base_directory = params['out_dir']
         exp_name = params.get('exp_name')
+
+        stored_directory = os.path.join(base_directory, exp_name)
+        if os.path.exists(stored_directory):
+            shutil.rmtree(stored_directory)
 
         store = CustomStore(storage_folder=base_directory, exp_id=exp_name, new=True)
 
