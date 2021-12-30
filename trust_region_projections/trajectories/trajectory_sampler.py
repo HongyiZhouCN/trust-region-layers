@@ -185,11 +185,12 @@ class TrajectorySampler(object):
                 if render:
                     self.envs.render_test(mode="human")
                 with ch.no_grad():
+                    # debug
                     p = policy(tensorize(obs, self.cpu, self.dtype))
                     actions = p[0] if deterministic else policy.sample(p)
                     actions = policy.squash(actions)
                 obs, rews, dones, infos = self.envs.step_test(get_numpy(actions))
-                seg_len = 250
+                # seg_len = 250
                 # plt.plot(np.arange(seg_num * seg_len, (seg_num+1)*seg_len), infos['info'][0]['step_observations'][:seg_len, 0], color=uniqueish_color())
                 seg_num += 1
                 ep_rewards[i, not_dones] += rews[not_dones]
