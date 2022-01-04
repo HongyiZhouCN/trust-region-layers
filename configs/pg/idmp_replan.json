@@ -1,7 +1,7 @@
 {
   "exp_name": "",
   "game": "alr_envs:TableTennisReplan-v0",
-  "n_envs": 16,
+  "n_envs": 32,
   "n_test_envs": 1,
   "rollout_steps": 4,
   "max_episode_length": 2800,
@@ -34,7 +34,7 @@
   "lr_vf": 2.5e-4,
   "lr_schedule": "linear",
 
-  "train_steps": 1465,
+  "train_steps": 3000,
   "epochs": 10,
   "val_epochs": 10,
 
@@ -51,7 +51,7 @@
   "share_weights": false,
   "activation": "tanh",
   "policy_type": "diag",
-  "minimal_std": 1e-5,
+  "minimal_std": 1e-2,
   "init_std": 1.0,
   "contextual_std": false,
   "hidden_sizes_policy": [64,64],
@@ -66,7 +66,7 @@
   "advanced_logging": true,
   "log_interval": 1,
   "save_interval": 0,
-  "out_dir": "results/tt_replan_t0/",
-  "seed": 42,
+  "out_dir": "results/tt_replan_change_goal/",
+  "seed": 10,
   "dtype": "float64"
 }

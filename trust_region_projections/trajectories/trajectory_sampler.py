@@ -180,23 +180,36 @@ class TrajectorySampler(object):
             seg_num = 0
             not_dones = np.ones((self.n_test_envs,), np.bool)
             obs = self.envs.reset_test()
+
+            traj_len_before = 0
+            whole_traj_no_replan = np.zeros(shape=(1,7))
+            static_obs = np.zeros(3)
             while np.any(not_dones):
                 ep_lengths[i, not_dones] += 1
                 if render:
                     self.envs.render_test(mode="human")
                 with ch.no_grad():
+                    print(obs)
+                    static_obs = obs
                     p = policy(tensorize(obs, self.cpu, self.dtype))
                     actions = p[0] if deterministic else policy.sample(p)
                     actions = policy.squash(actions)
                 obs, rews, dones, infos = self.envs.step_test(get_numpy(actions))
-                seg_len = 250
-                # plt.plot(np.arange(seg_num * seg_len, (seg_num+1)*seg_len), infos['info'][0]['step_observations'][:seg_len, 0], color=uniqueish_color())
+                seg_len = infos['info'][0]['executed_trajectory'].shape[0]
+                whole_traj_no_replan = np.vstack([whole_traj_no_replan, infos['info'][0]['executed_trajectory']])
+                # plt.plot(np.arange(traj_len_before, traj_len_before + seg_len), infos['info'][0]['executed_trajectory'][:seg_len, 6], color=uniqueish_color())
+                traj_len_before += seg_len
                 seg_num += 1
                 ep_rewards[i, not_dones] += rews[not_dones]
 
                 # only set to False when env has never terminated before, otherwise we favor earlier terminating envs.
                 not_dones = np.logical_and(~dones, not_dones)
-        # plt.show()
+            plt.plot(whole_traj_no_replan[1:, 6])
+        plt.show()
+        if static_obs[0][-2] > 0:
+            np.save("/home/i53/student/hongyi_zhou/py_ws/trust-region-layers/plots/1.npy", whole_traj_no_replan)
+        if static_obs[0][-2] < 0:
+            np.save("/home/i53/student/hongyi_zhou/py_ws/trust-region-layers/plots/2.npy", whole_traj_no_replan)
         return self.get_reward_dict(ep_rewards, ep_lengths)
 
     def get_exploration_performance(self):
