@@ -73,7 +73,7 @@ class NormalizedEnvWrapper(object):
 
         vec_env_test_fun = SubprocVecEnv if n_test_envs > 1 else DummyVecEnv
         self.test_env_fns = [make_env(env_id, seed, i) for i in range(n_test_envs)]
-        self.envs_test = vec_env_fun(self.test_env_fns)
+        self.envs_test = vec_env_test_fun(self.test_env_fns)
 
         # self.envs = SequentialVectorEnv([make_env(env_id, seed, i) for i in range(n_envs)],
         #                                 max_episode_length=max_episode_length)

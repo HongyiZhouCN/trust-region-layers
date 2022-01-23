@@ -643,7 +643,7 @@ class PolicyGradient(AbstractAlgorithm):
                                              clip_obs=param_dict['clip_obs'] or 0.0,
                                              norm_rewards=param_dict['norm_rewards'],
                                              clip_rewards=param_dict['clip_rewards'] or 0.0,
-                                             cpu=param_dict['cpu'], dtype=param_dict['cpu'],
+                                             cpu=param_dict['cpu'], dtype=param_dict['dtype'],
                                              seed=param_dict['seed'])
         agent.env_runner.total_rewards = param_dict['total_rewards']
         agent.env_runner.total_steps = param_dict['total_steps']
