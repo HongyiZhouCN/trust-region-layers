@@ -20,6 +20,8 @@ from typing import Union
 from trust_region_projections.trajectories.env_normalizer import BaseNormalizer, MovingAvgNormalizer
 from trust_region_projections.trajectories.vector_env import SequentialVectorEnv
 
+from stable_baselines3.common.vec_env.dummy_vec_env import DummyVecEnv
+from stable_baselines3.common.vec_env.subproc_vec_env import SubprocVecEnv
 
 def make_env(env_id: str, seed: int, rank: int) -> callable:
     """
@@ -65,12 +67,20 @@ class NormalizedEnvWrapper(object):
 
         self.max_episode_length = max_episode_length
 
-        self.envs = SequentialVectorEnv([make_env(env_id, seed, i) for i in range(n_envs)],
-                                        max_episode_length=max_episode_length)
-        if n_test_envs:
-            # Create test envs here to leverage the moving average normalization for testing envs.
-            self.envs_test = SequentialVectorEnv([make_env(env_id, seed + n_envs, i) for i in range(n_test_envs)],
-                                                 max_episode_length=max_episode_length)
+        vec_env_fun = SubprocVecEnv if n_envs > 1 else DummyVecEnv
+        self.env_fns = [make_env(env_id, seed, i) for i in range(n_envs)]
+        self.envs = vec_env_fun(self.env_fns)
+
+        vec_env_test_fun = SubprocVecEnv if n_test_envs > 1 else DummyVecEnv
+        self.test_env_fns = [make_env(env_id, seed, i) for i in range(n_test_envs)]
+        self.envs_test = vec_env_fun(self.test_env_fns)
+
+        # self.envs = SequentialVectorEnv([make_env(env_id, seed, i) for i in range(n_envs)],
+        #                                 max_episode_length=max_episode_length)
+        # if n_test_envs:
+        #     # Create test envs here to leverage the moving average normalization for testing envs.
+        #     self.envs_test = SequentialVectorEnv([make_env(env_id, seed + n_envs, i) for i in range(n_test_envs)],
+        #                                          max_episode_length=max_episode_length)
 
         self.norm_obs = norm_obs
         self.clip_obs = clip_obs

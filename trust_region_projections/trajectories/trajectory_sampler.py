@@ -20,6 +20,10 @@ import numpy as np
 import torch as ch
 from typing import Union
 
+from stable_baselines3.common.vec_env.dummy_vec_env import DummyVecEnv
+from stable_baselines3.common.vec_env.subproc_vec_env import SubprocVecEnv
+
+from collections import defaultdict
 from trust_region_projections.models.policy.abstract_gaussian_policy import AbstractGaussianPolicy
 from trust_region_projections.models.value.vf_net import VFNet
 from trust_region_projections.trajectories.dataclass import TrajectoryOnPolicyRaw
@@ -56,6 +60,16 @@ class TrajectorySampler(object):
         Returns:
 
         """
+        # for save model
+        self.env_id = env_id
+        self.max_episode_length = max_episode_length
+        self.discount_factor = discount_factor
+        self.norm_obs = norm_obs
+        self.clip_obs = clip_obs
+        self.norm_rewards = norm_rewards
+        self.clip_rewards = clip_rewards
+        self.seed = seed
+
 
         self.dtype = dtype
         self.cpu = cpu
@@ -105,6 +119,8 @@ class TrajectorySampler(object):
         obs = self.envs.reset() if reset_envs else self.envs.last_obs
         obs = tensorize(obs, self.cpu, self.dtype)
 
+        ep_length = np.zeros((num_envs,))
+        ep_reward = np.zeros((num_envs,))
         # For n in range number of steps
         for i in range(rollout_steps):
             # Given observations, get action value and lopacs
@@ -118,12 +134,25 @@ class TrajectorySampler(object):
             obs, rewards, dones, infos = self.envs.step(squashed_actions.cpu().numpy())
             obs = tensorize(obs, self.cpu, self.dtype)
 
+            ep_length += 1
+            ep_reward += rewards
+            for j in range(num_envs):
+                if dones[j]:
+                    ep_infos.append((ep_length[j], ep_reward[j]))
+                    ep_length[j] = 0.
+                    ep_reward[j] = 0.
+
             mb_means[i] = pds[0]
             mb_stds[i] = pds[1]
-            mb_time_limit_dones[i] = tensorize(infos["horizon"], self.cpu, ch.bool)
 
-            if infos.get("done"):
-                ep_infos.extend(infos.get("done"))
+            ## fake time_limit_done flag
+            # mb_time_limit_dones[i] = tensorize(infos["horizon"], self.cpu, ch.bool)
+
+            # if infos.get("done"):
+            #     ep_infos.extend(infos.get("done"))
+
+            # if infos[0].get("done"):
+            #     ep_infos.extend(infos[0].get("done"))
 
             mb_rewards[i] = tensorize(rewards, self.cpu, self.dtype)
             mb_dones[i] = tensorize(dones, self.cpu, ch.bool)

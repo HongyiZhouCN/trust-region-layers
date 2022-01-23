@@ -547,11 +547,39 @@ class PolicyGradient(AbstractAlgorithm):
         Returns:
 
         """
+        # environments
+        # env_runner = TrajectorySampler(params['game'], n_envs=params['n_envs'], n_test_envs=params['n_test_envs'],
+        #                                max_episode_length=params['max_episode_length'],
+        #                                discount_factor=params['discount_factor'], norm_obs=params['norm_observations'],
+        #                                clip_obs=params['clip_observations'] or 0.0, norm_rewards=params['norm_rewards'],
+        #                                clip_rewards=params['clip_rewards'] or 0.0, cpu=not use_gpu, dtype=dtype,
+        #                                seed=seed)
+
+        env_data_dict = {
+            'env_id': self.env_runner.env_id,
+            'n_envs': self.env_runner.n_envs,
+            'n_test_envs': self.env_runner.n_test_envs,
+            'max_episode_length': self.env_runner.max_episode_length,
+            'discount_factor': self.env_runner.discount_factor,
+            'norm_obs': self.env_runner.norm_obs,
+            'clip_obs': self.env_runner.clip_obs,
+            'norm_rewards': self.env_runner.norm_rewards,
+            'clip_rewards': self.env_runner.clip_rewards,
+            'cpu': self.env_runner.cpu,
+            'dtype': self.env_runner.dtype,
+            'seed': self.env_runner.seed,
+            'total_rewards': self.env_runner.total_rewards,
+            'total_steps': self.env_runner.total_steps
+        }
+
         checkpoint_dict = {
             'iteration': iteration,
             'policy': self.policy.state_dict(),
             'optimizer': self.optimizer.state_dict(),
-            'env_runner': self.env_runner
+            # 'env': self.env_runner.envs.env_fns,
+            # 'test_env': self.env_runner.envs.test_env_fns,
+            # 'env_runner': self.env_runner
+            'env_runner_dict': env_data_dict
         }
 
         if self.vf_model:
@@ -604,7 +632,22 @@ class PolicyGradient(AbstractAlgorithm):
             if agent.lr_schedule:
                 agent.lr_schedule_vf.last_epoch = iteration
 
-        agent.env_runner = store.load('checkpoints', 'env_runner', 'pickle')
+        # disable save env_runner
+        # agent.env_runner = store.load('checkpoints', 'env_runner', 'pickle')
+        param_dict = store.load('checkpoints', 'env_runner_dict', 'pickle')
+        agent.env_runner = TrajectorySampler(param_dict['env_id'], n_envs=param_dict['n_envs'],
+                                             n_test_envs=param_dict['n_test_envs'],
+                                             max_episode_length=param_dict['max_episode_length'],
+                                             discount_factor=param_dict['discount_factor'],
+                                             norm_obs=param_dict['norm_obs'],
+                                             clip_obs=param_dict['clip_obs'] or 0.0,
+                                             norm_rewards=param_dict['norm_rewards'],
+                                             clip_rewards=param_dict['clip_rewards'] or 0.0,
+                                             cpu=param_dict['cpu'], dtype=param_dict['cpu'],
+                                             seed=param_dict['seed'])
+        agent.env_runner.total_rewards = param_dict['total_rewards']
+        agent.env_runner.total_steps = param_dict['total_steps']
+
         agent._global_steps = iteration + 1
         agent.store = store
 

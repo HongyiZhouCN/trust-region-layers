@@ -46,7 +46,10 @@ def setup_general_agent(params: dict, save_git: bool = True):
         base_directory = params['out_dir']
         exp_name = params.get('exp_name')
 
-        store = CustomStore(storage_folder=base_directory, exp_id=exp_name, new=True)
+        # exp_path = os.path.join(base_directory, exp_name)
+
+        # new = False, new experiment could overwrite old results
+        store = CustomStore(storage_folder=base_directory, exp_id=exp_name, new=False)
 
         # Store the experiment path
         metadata_schema.update({'store_path': str})
@@ -89,7 +92,8 @@ def get_new_ppo_agent(params, save_git=True):
 
             checkpoints_dict = {
                 'policy': store.PYTORCH_STATE,
-                'env_runner': store.PICKLE,
+                # 'env_runner': store.PICKLE,
+                'env_runner_dict': store.PICKLE,
                 'optimizer': store.PYTORCH_STATE,
                 'iteration': int
             }
