@@ -13,8 +13,8 @@ find_library(lapack REQUIRED)
 add_subdirectory(pybind11)
 
 #Adapt these so that armadillo and nlopt are found
-include_directories(<path_to_armadillo>/include <path_to_nlopt>/include)
-link_directories(<path_to_nlopt>/lib)
+include_directories(/home/zhou_uokad/workspace/tt_replan/cpp_pkgs/armadillo-10.8.0/include  /home/zhou_uokad/workspace/tt_replan/cpp_pkgs/nlopt_install/include /home/zhou_uokad/workspace/tt_replan/cpp_pkgs/OpenBLAS_install/include /home/zhou_uokad/anaconda3/envs/tt_env/include)
+link_directories(/home/zhou_uokad/workspace/tt_replan/cpp_pkgs/nlopt_install/lib /home/zhou_uokad/workspace/tt_replan/cpp_pkgs/OpenBLAS_install/lib /home/zhou_uokad/anaconda3/envs/tt_env/lib)
 ### END OF STUFF THE NEEDS TO BE CHANGED ##################################
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")

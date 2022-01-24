@@ -1,7 +1,7 @@
 {
   "exp_name": "",
   "game": "HalfCheetah-v2",
-  "n_envs": 3,
+  "n_envs": 12,
   "n_test_envs": 1,
   "rollout_steps": 2048,
   "max_episode_length": 1000,
