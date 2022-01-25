@@ -37,7 +37,7 @@ from trust_region_projections.utils.network_utils import get_lr_schedule, get_op
 from trust_region_projections.utils.torch_utils import flatten_batch, generate_minibatches, get_numpy, \
     select_batch, tensorize
 
-from utils.log import WandbLogger
+from log import WandbLogger
 
 logging.basicConfig(level=logging.INFO)
 
@@ -530,6 +530,18 @@ class PolicyGradient(AbstractAlgorithm):
             if self.save_interval > 0 and epoch % self.save_interval == 0:
                 self.save(epoch)
 
+            self.wandb_logger.log_info(epoch, 'exploration_mean', rewards_dict['exploration']['mean'])
+            self.wandb_logger.log_info(epoch, 'exploration_max', rewards_dict['exploration']['max'])
+            self.wandb_logger.log_info(epoch, 'exploration_min', rewards_dict['exploration']['min'])
+            self.wandb_logger.log_info(epoch, 'exploration_ep_length', rewards_dict['exploration']['length'])
+
+            self.wandb_logger.log_info(epoch, 'evaluation_mean', rewards_dict['evaluation']['mean'])
+            self.wandb_logger.log_info(epoch, 'evaluation_max', rewards_dict['evaluation']['max'])
+            self.wandb_logger.log_info(epoch, 'evaluation_min', rewards_dict['evaluation']['min'])
+            self.wandb_logger.log_info(epoch, 'evaluation_ep_length', rewards_dict['evaluation']['length'])
+
+            if self.vf_model:
+                self.wandb_logger.log_info(epoch, 'vf_loss', metrics_dict['vf_loss'])
             rewards.append(rewards_dict['exploration']['mean'])
             rewards_test.append(rewards_dict['evaluation']['mean'])
 
