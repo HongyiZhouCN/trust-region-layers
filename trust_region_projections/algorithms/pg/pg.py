@@ -547,14 +547,6 @@ class PolicyGradient(AbstractAlgorithm):
         Returns:
 
         """
-        # environments
-        # env_runner = TrajectorySampler(params['game'], n_envs=params['n_envs'], n_test_envs=params['n_test_envs'],
-        #                                max_episode_length=params['max_episode_length'],
-        #                                discount_factor=params['discount_factor'], norm_obs=params['norm_observations'],
-        #                                clip_obs=params['clip_observations'] or 0.0, norm_rewards=params['norm_rewards'],
-        #                                clip_rewards=params['clip_rewards'] or 0.0, cpu=not use_gpu, dtype=dtype,
-        #                                seed=seed)
-
         env_data_dict = {
             'env_id': self.env_runner.env_id,
             'n_envs': self.env_runner.n_envs,
@@ -569,7 +561,9 @@ class PolicyGradient(AbstractAlgorithm):
             'dtype': self.env_runner.dtype,
             'seed': self.env_runner.seed,
             'total_rewards': self.env_runner.total_rewards,
-            'total_steps': self.env_runner.total_steps
+            'total_steps': self.env_runner.total_steps,
+            'state_normalizer': self.env_runner.envs.state_normalizer,
+            'reward_normalizer': self.env_runner.envs.reward_normalizer
         }
 
         checkpoint_dict = {
@@ -589,7 +583,7 @@ class PolicyGradient(AbstractAlgorithm):
         self.store['checkpoints'].append_row(checkpoint_dict)
 
     @staticmethod
-    def agent_from_data(store: CustomStore, train_steps: Union[None, int] = None):
+    def agent_from_data(store: CustomStore, train_steps: Union[None, int] = None, load_steps: int = -1):
         """
         Initializes an agent from serialized data (via cox)
         Args:
@@ -615,38 +609,30 @@ class PolicyGradient(AbstractAlgorithm):
         agent = PolicyGradient.agent_from_params(agent_params)
 
         mapper = ch.device('cuda:0') if not agent_params['cpu'] else ch.device('cpu')
-        iteration = store.load('checkpoints', 'iteration', '')
+        iteration = store.load('checkpoints', 'iteration', '', load_steps)
 
-        def load_state_dict(model, ckpt_name):
-            state_dict = store.load('checkpoints', ckpt_name, "state_dict", map_location=mapper)
+        def load_state_dict(model, ckpt_name, iteration):
+            state_dict = store.load('checkpoints', ckpt_name, iteration, "state_dict", map_location=mapper)
             model.load_state_dict(state_dict)
 
-        load_state_dict(agent.policy, 'policy')
-        load_state_dict(agent.optimizer, 'optimizer')
+        load_state_dict(agent.policy, 'policy', load_steps)
+        load_state_dict(agent.optimizer, 'optimizer', load_steps)
         if agent.lr_schedule:
             agent.lr_schedule.last_epoch = iteration
 
         if agent.vf_model:
-            load_state_dict(agent.vf_model, 'vf_model')
+            load_state_dict(agent.vf_model, 'vf_model', load_steps)
             # load_state_dict(agent.optimizer_vf, 'optimizer_vf')
             if agent.lr_schedule:
                 agent.lr_schedule_vf.last_epoch = iteration
 
         # disable save env_runner
         # agent.env_runner = store.load('checkpoints', 'env_runner', 'pickle')
-        param_dict = store.load('checkpoints', 'env_runner_dict', 'pickle')
-        agent.env_runner = TrajectorySampler(param_dict['env_id'], n_envs=param_dict['n_envs'],
-                                             n_test_envs=param_dict['n_test_envs'],
-                                             max_episode_length=param_dict['max_episode_length'],
-                                             discount_factor=param_dict['discount_factor'],
-                                             norm_obs=param_dict['norm_obs'],
-                                             clip_obs=param_dict['clip_obs'] or 0.0,
-                                             norm_rewards=param_dict['norm_rewards'],
-                                             clip_rewards=param_dict['clip_rewards'] or 0.0,
-                                             cpu=param_dict['cpu'], dtype=param_dict['dtype'],
-                                             seed=param_dict['seed'])
+        param_dict = store.load('checkpoints', 'env_runner_dict', 'pickle', load_steps)
         agent.env_runner.total_rewards = param_dict['total_rewards']
         agent.env_runner.total_steps = param_dict['total_steps']
+        agent.env_runner.envs.state_normalizer = param_dict['state_normalizer']
+        agent.env_runner.envs.reward_normalizer = param_dict['reward_normalizer']
 
         agent._global_steps = iteration + 1
         agent.store = store

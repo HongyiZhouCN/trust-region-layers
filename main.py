@@ -100,13 +100,15 @@ if __name__ == '__main__':
     parser.add_argument('--test', action='store_true', help='Only test loaded model.', )
     parser.add_argument('--num-threads', type=int, default=10,
                         help='Number of threads for running multiple experiments.', )
+    parser.add_argument('--load-step', type=int, default=-1,
+                        help='Step at which to load the model', )
     args = parser.parse_args()
 
     path = args.path
 
     if args.load_exp_name:
         store = CustomStore(storage_folder=path, exp_id=args.load_exp_name, new=not args.test)
-        agent, agent_params = PolicyGradient.agent_from_data(store, args.train_steps)
+        agent, agent_params = PolicyGradient.agent_from_data(store, args.train_steps, args.load_step)
         if args.test:
             while True:
                 _, eval_dict = agent.evaluate_policy(0, render=True, deterministic=True)
