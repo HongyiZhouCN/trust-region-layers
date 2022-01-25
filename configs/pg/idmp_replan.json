@@ -62,11 +62,13 @@
   "lr_reg": 0.0001,
   "optimizer_reg": "adam",
 
+  "logger_name": "TT_REPLAN_TEST_WANDB",
+
   "cpu": true,
   "advanced_logging": true,
   "log_interval": 1,
   "save_interval": 2,
-  "out_dir": "results/tt_replan_NoJointStates",
+  "out_dir": "results/wandb",
   "seed": 10,
   "dtype": "float32"
 }

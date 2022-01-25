@@ -37,6 +37,8 @@ from trust_region_projections.utils.network_utils import get_lr_schedule, get_op
 from trust_region_projections.utils.torch_utils import flatten_batch, generate_minibatches, get_numpy, \
     select_batch, tensorize
 
+from utils.log import WandbLogger
+
 logging.basicConfig(level=logging.INFO)
 
 
@@ -80,6 +82,8 @@ class PolicyGradient(AbstractAlgorithm):
                  advanced_logging: bool = True,
                  log_interval: int = 5,
                  save_interval: int = -1,
+
+                 logger_configs = None,
 
                  seed: int = 1,
                  cpu: bool = True,
@@ -168,6 +172,10 @@ class PolicyGradient(AbstractAlgorithm):
             self.setup_stores()
 
         self.logger = logging.getLogger('policy_gradient')
+
+        self.wandb_logger = WandbLogger(logger_configs)
+
+        print("logger succeed")
 
     def setup_stores(self):
         # Logging setup
@@ -764,6 +772,8 @@ class PolicyGradient(AbstractAlgorithm):
             advanced_logging=advanced_logging,
             log_interval=log_interval,
             save_interval=params['save_interval'],
+
+            logger_configs=params,
 
             seed=seed,
             cpu=not use_gpu,
