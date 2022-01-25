@@ -175,7 +175,6 @@ class PolicyGradient(AbstractAlgorithm):
 
         self.wandb_logger = WandbLogger(logger_configs)
 
-        print("logger succeed")
 
     def setup_stores(self):
         # Logging setup
@@ -529,6 +528,7 @@ class PolicyGradient(AbstractAlgorithm):
 
             if self.save_interval > 0 and epoch % self.save_interval == 0:
                 self.save(epoch)
+                self.wandb_logger.log_model(model_path=self.store.path, finished=False)
 
             self.wandb_logger.log_info(epoch, 'exploration_mean', rewards_dict['exploration']['mean'])
             self.wandb_logger.log_info(epoch, 'exploration_max', rewards_dict['exploration']['max'])
@@ -554,6 +554,7 @@ class PolicyGradient(AbstractAlgorithm):
         # final evaluation and save of model
         if self.save_interval > 0:
             self.save(self.train_steps)
+            self.wandb_logger.log_model(model_path=self.store.path, finished=True)
         exploration_dict, evaluation_dict = self.evaluate_policy(self._global_steps * self.rollout_steps)
 
         return {"exploration": exploration_dict, "evaluation": evaluation_dict}

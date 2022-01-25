@@ -123,6 +123,7 @@ class WandbLogger:
                        key: value})
 
     def log_model(self,
+                  model_path: str =None,
                   finished: bool = False):
         """
         Log model into Artifact
@@ -138,11 +139,19 @@ class WandbLogger:
         model_artifact = wandb.Artifact(name="model", type="model")
 
         # Get all file names in log dir
-        file_names = get_file_names_in_directory(self.log_model_dir)
+        file_names = get_file_names_in_directory(model_path)
+        file_names_save = get_file_names_in_directory(os.path.join(model_path, 'save'))
+        file_names_tb = get_file_names_in_directory(os.path.join(model_path, 'tensorboard'))
 
         # Add files into artifact
         for file in file_names:
-            path = os.path.join(self.log_model_dir, file)
+            path = os.path.join(model_path, file)
+            model_artifact.add_file(path)
+        for file in file_names_save:
+            path = os.path.join(model_path, 'save', file)
+            model_artifact.add_file(path)
+        for file in file_names_tb:
+            path = os.path.join(model_path, 'tensorboard', file)
             model_artifact.add_file(path)
 
         if finished:
