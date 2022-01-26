@@ -122,3 +122,4 @@ venv.bak/
 */.idea
 tags
 MUJOCO_LOG*
+wandb/

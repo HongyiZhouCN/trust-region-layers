@@ -612,7 +612,7 @@ class PolicyGradient(AbstractAlgorithm):
         iteration = store.load('checkpoints', 'iteration', '', load_steps)
 
         def load_state_dict(model, ckpt_name, iteration):
-            state_dict = store.load('checkpoints', ckpt_name, iteration, "state_dict", map_location=mapper)
+            state_dict = store.load('checkpoints', ckpt_name, "state_dict", iteration, map_location=mapper)
             model.load_state_dict(state_dict)
 
         load_state_dict(agent.policy, 'policy', load_steps)
