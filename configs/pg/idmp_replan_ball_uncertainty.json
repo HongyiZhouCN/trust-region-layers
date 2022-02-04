@@ -1,9 +1,9 @@
 {
   "exp_name": "",
   "game": "alr_envs:TableTennisReplan-v0",
-  "n_envs": 64,
+  "n_envs": 32,
   "n_test_envs": 5,
-  "rollout_steps": 6,
+  "rollout_steps": 12,
   "max_episode_length": 2800,
   "max_entropy_coeff": 0.0,
 
@@ -34,7 +34,7 @@
   "lr_vf": 2.5e-4,
   "lr_schedule": "linear",
 
-  "train_steps": 40000,
+  "train_steps": 10000,
   "epochs": 10,
   "val_epochs": 10,
 
@@ -54,8 +54,8 @@
   "minimal_std": 1e-2,
   "init_std": 1.0,
   "contextual_std": false,
-  "hidden_sizes_policy": [64, 64],
-  "hidden_sizes_vf": [64, 64],
+  "hidden_sizes_policy": [128, 128],
+  "hidden_sizes_vf": [128, 128],
 
   "do_regression": false,
   "regression_iters": 5,
@@ -66,7 +66,7 @@
   "advanced_logging": true,
   "log_interval": 1,
   "save_interval": 100,
-  "out_dir": "results/tt_replan_half_uncertainty_replan6/",
+  "out_dir": "results/tt_replan_uncertainty_ball/",
   "seed": 10,
   "dtype": "float32"
 }
