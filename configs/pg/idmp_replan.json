@@ -1,7 +1,7 @@
 {
   "exp_name": "",
   "game": "alr_envs:TableTennisReplan-v0",
-  "n_envs": 12,
+  "n_envs": 6,
   "n_test_envs": 1,
   "rollout_steps": 100,
   "max_episode_length": 7,
@@ -63,12 +63,13 @@
   "optimizer_reg": "adam",
 
   "logger_name": "TT_REPLAN_TEST_WANDB",
+  "enable_wandb": false,
 
   "cpu": true,
   "advanced_logging": true,
   "log_interval": 1,
   "save_interval": 2,
-  "out_dir": "results/wandb",
+  "out_dir": "results/wandb_disable",
   "seed": 10,
-  "dtype": "float32"
+  "dtype": "float64"
 }

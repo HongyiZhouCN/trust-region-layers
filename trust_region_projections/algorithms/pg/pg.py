@@ -173,7 +173,10 @@ class PolicyGradient(AbstractAlgorithm):
 
         self.logger = logging.getLogger('policy_gradient')
 
-        self.wandb_logger = WandbLogger(logger_configs)
+        if logger_configs['enable_wandb']:
+            self.wandb_logger = WandbLogger(logger_configs)
+        else:
+            self.wandb_logger = False
 
 
     def setup_stores(self):
@@ -528,20 +531,22 @@ class PolicyGradient(AbstractAlgorithm):
 
             if self.save_interval > 0 and epoch % self.save_interval == 0:
                 self.save(epoch)
-                self.wandb_logger.log_model(model_path=self.store.path, finished=False)
+                if self.wandb_logger:
+                    # self.wandb_logger.log_model(model_path=self.store.path, finished=False)
 
-            self.wandb_logger.log_info(epoch, 'exploration_mean', rewards_dict['exploration']['mean'])
-            self.wandb_logger.log_info(epoch, 'exploration_max', rewards_dict['exploration']['max'])
-            self.wandb_logger.log_info(epoch, 'exploration_min', rewards_dict['exploration']['min'])
-            self.wandb_logger.log_info(epoch, 'exploration_ep_length', rewards_dict['exploration']['length'])
+                    self.wandb_logger.log_info(epoch, 'exploration_mean', rewards_dict['exploration']['mean'])
+                    self.wandb_logger.log_info(epoch, 'exploration_max', rewards_dict['exploration']['max'])
+                    self.wandb_logger.log_info(epoch, 'exploration_min', rewards_dict['exploration']['min'])
+                    self.wandb_logger.log_info(epoch, 'exploration_ep_length', rewards_dict['exploration']['length'])
 
-            self.wandb_logger.log_info(epoch, 'evaluation_mean', rewards_dict['evaluation']['mean'])
-            self.wandb_logger.log_info(epoch, 'evaluation_max', rewards_dict['evaluation']['max'])
-            self.wandb_logger.log_info(epoch, 'evaluation_min', rewards_dict['evaluation']['min'])
-            self.wandb_logger.log_info(epoch, 'evaluation_ep_length', rewards_dict['evaluation']['length'])
+                    self.wandb_logger.log_info(epoch, 'evaluation_mean', rewards_dict['evaluation']['mean'])
+                    self.wandb_logger.log_info(epoch, 'evaluation_max', rewards_dict['evaluation']['max'])
+                    self.wandb_logger.log_info(epoch, 'evaluation_min', rewards_dict['evaluation']['min'])
+                    self.wandb_logger.log_info(epoch, 'evaluation_ep_length', rewards_dict['evaluation']['length'])
 
             if self.vf_model:
-                self.wandb_logger.log_info(epoch, 'vf_loss', metrics_dict['vf_loss'])
+                if self.wandb_logger:
+                    self.wandb_logger.log_info(epoch, 'vf_loss', metrics_dict['vf_loss'])
             rewards.append(rewards_dict['exploration']['mean'])
             rewards_test.append(rewards_dict['evaluation']['mean'])
 
@@ -554,7 +559,8 @@ class PolicyGradient(AbstractAlgorithm):
         # final evaluation and save of model
         if self.save_interval > 0:
             self.save(self.train_steps)
-            self.wandb_logger.log_model(model_path=self.store.path, finished=True)
+            if self.wandb_logger:
+                self.wandb_logger.log_model(model_path=self.store.path, finished=True)
         exploration_dict, evaluation_dict = self.evaluate_policy(self._global_steps * self.rollout_steps)
 
         return {"exploration": exploration_dict, "evaluation": evaluation_dict}
